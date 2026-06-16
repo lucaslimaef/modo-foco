@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Modo Foco</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0a14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Foco">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="icon" type="image/png" href="icone-512.png">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --bg:#0a0a14;
+    --bg2:#10101f;
+    --card:rgba(255,255,255,.045);
+    --card-border:rgba(124,58,237,.22);
+    --txt:#e9e9f4;
+    --muted:#9a9ab5;
+    --roxo:#7c3aed;
+    --roxo2:#6d28d9;
+    --azul:#4f46e5;
+    --ciano:#38bdf8;
+    --verde:#34d399;
+    --aviso:#fbbf24;
+    --shadow:0 18px 50px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(900px 600px at 80% -10%, rgba(79,70,229,.18), transparent 60%),
+      radial-gradient(700px 500px at 0% 100%, rgba(124,58,237,.16), transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    min-height:100dvh;
+    padding:calc(22px + env(safe-area-inset-top)) 16px 110px;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:680px;margin:0 auto}
+
+  /* topo */
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .logo{
+    width:40px;height:40px;border-radius:13px;
+    background:linear-gradient(135deg,var(--roxo),var(--azul));
+    display:grid;place-items:center;font-size:20px;
+    box-shadow:0 8px 22px rgba(124,58,237,.45);
+  }
+  .brand h1{font-size:18px;font-weight:800;letter-spacing:.3px}
+  .brand small{display:block;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+
+  /* cartoes */
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:22px;
+    padding:24px;
+    backdrop-filter:blur(14px);
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+  }
+  .view{display:none;animation:fade .35s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* contador principal */
+  .streak{text-align:center;padding:34px 24px}
+  .streak .ring{
+    position:relative;width:210px;height:210px;margin:6px auto 18px;
+    border-radius:50%;
+    background:conic-gradient(var(--roxo) var(--prog,0%), rgba(255,255,255,.06) 0);
+    display:grid;place-items:center;
+    transition:background .6s ease;
+  }
+  .streak .ring::before{
+    content:"";position:absolute;inset:11px;border-radius:50%;
+    background:radial-gradient(circle at 50% 35%, #1a1a2e, #0c0c18);
+    box-shadow:inset 0 0 40px rgba(124,58,237,.25);
+  }
+  .ring .inner{position:relative;z-index:1}
+  .ring .num{font-size:64px;font-weight:900;line-height:1;background:linear-gradient(120deg,#fff,#b8a6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .ring .lbl{color:var(--muted);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:6px}
+  .clock{color:var(--ciano);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+
+  .milestone{margin-top:8px;color:var(--muted);font-size:13px}
+  .milestone b{color:var(--txt)}
+  .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:10px}
+  .bar > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--roxo),var(--ciano));transition:width .6s ease}
+
+  /* botao panico */
+  .panic-btn{
+    width:100%;border:none;cursor:pointer;color:#fff;font-weight:800;font-size:17px;
+    padding:20px;border-radius:18px;margin-top:6px;letter-spacing:.3px;
+    background:linear-gradient(135deg,var(--roxo),var(--azul));
+    box-shadow:0 14px 34px rgba(124,58,237,.5);
+    transition:transform .15s, box-shadow .15s;
+  }
+  .panic-btn:active{transform:scale(.97)}
+  .panic-btn span{display:block;font-size:12px;font-weight:600;opacity:.85;margin-top:3px}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+  .stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px 10px;text-align:center}
+  .stat .v{font-size:26px;font-weight:900}
+  .stat .k{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+  h2.title{font-size:17px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  p.sub{color:var(--muted);font-size:13px;line-height:1.55;margin-bottom:16px}
+
+  /* botoes genericos */
+  .btn{cursor:pointer;border:none;border-radius:14px;font-weight:700;font-size:14px;padding:14px 18px;color:#fff;background:linear-gradient(135deg,var(--roxo),var(--roxo2));transition:transform .12s,filter .12s;width:100%}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--txt)}
+  .btn.danger{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4);color:var(--aviso)}
+  .btn.verde{background:linear-gradient(135deg,#10b981,#059669)}
+  .row{display:flex;gap:10px;margin-top:10px}
+  .row .btn{flex:1}
+
+  input,textarea,select{
+    width:100%;background:rgba(255,255,255,.05);border:1px solid var(--card-border);
+    border-radius:13px;padding:13px 15px;color:var(--txt);font-size:14px;font-family:inherit;outline:none;
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--roxo)}
+  textarea{resize:vertical;min-height:80px;line-height:1.5}
+  label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+
+  /* listas */
+  .item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 16px;margin-top:10px;position:relative}
+  .item .meta{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .item .x{position:absolute;top:10px;right:12px;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;border:none;background:none}
+  .item .x:hover{color:var(--aviso)}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 10px;font-style:italic}
+
+  .why-list .item{border-left:3px solid var(--roxo)}
+
+  /* nav inferior */
+  nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    display:flex;justify-content:space-around;
+    background:rgba(12,12,24,.82);backdrop-filter:blur(18px);
+    border-top:1px solid var(--card-border);
+    padding:9px 4px calc(9px + env(safe-area-inset-bottom));
+  }
+  nav button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 10px;border-radius:12px;flex:1;letter-spacing:.3px}
+  nav button .ic{font-size:20px}
+  nav button.active{color:#fff}
+  nav button.active .ic{filter:drop-shadow(0 0 10px rgba(124,58,237,.9))}
+
+  /* MODO PANICO fullscreen */
+  #panico{
+    position:fixed;inset:0;z-index:100;display:none;
+    background:radial-gradient(circle at 50% 30%, #1a1535, #06060f 75%);
+    padding:30px 22px calc(30px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+  }
+  #panico.show{display:block;animation:fade .4s ease}
+  .panico-inner{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+  .panico-h{text-align:center;color:var(--txt);font-size:22px;font-weight:800;margin-bottom:4px}
+  .panico-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.5}
+
+  .breathe{position:relative;width:240px;height:240px;margin:10px auto 6px;display:grid;place-items:center}
+  .breathe .orb{
+    width:120px;height:120px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, var(--ciano), var(--roxo));
+    box-shadow:0 0 60px rgba(124,58,237,.6);
+    animation:breathe 11s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{transform:scale(.62);box-shadow:0 0 35px rgba(79,70,229,.5)}
+    45%{transform:scale(1.18);box-shadow:0 0 80px rgba(56,189,248,.7)}
+    50%{transform:scale(1.18)}
+  }
+  .breathe .word{position:absolute;font-size:17px;font-weight:800;letter-spacing:2px;color:#fff;text-shadow:0 0 12px rgba(0,0,0,.6)}
+
+  .timer{text-align:center;font-size:40px;font-weight:900;font-variant-numeric:tabular-nums;margin:8px 0;color:#fff}
+  .pep{text-align:center;color:#cfc7ff;font-size:15px;font-weight:600;line-height:1.6;min-height:48px;padding:0 6px;transition:opacity .4s}
+
+  .redirect{margin:20px 0 8px}
+  .redirect .item{border-left:3px solid var(--ciano);display:flex;align-items:center;gap:12px}
+  .redirect .item .e{font-size:22px}
+  .redirect .item .t{font-size:14px;font-weight:600}
+
+  .panico-foot{margin-top:auto;padding-top:18px}
+
+  /* modal recaida */
+  .modal-bg{position:fixed;inset:0;z-index:120;background:rgba(4,4,12,.78);backdrop-filter:blur(6px);display:none;place-items:center;padding:20px}
+  .modal-bg.show{display:grid;animation:fade .25s ease}
+  .modal{background:var(--bg2);border:1px solid var(--card-border);border-radius:22px;padding:26px;max-width:460px;width:100%;box-shadow:var(--shadow)}
+  .modal h3{font-size:18px;font-weight:800;margin-bottom:6px}
+  .modal p{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:6px}
+
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);z-index:200;background:linear-gradient(135deg,var(--roxo),var(--azul));color:#fff;font-weight:700;font-size:14px;padding:13px 22px;border-radius:14px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.35s}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+  .badge{display:inline-block;background:rgba(124,58,237,.18);border:1px solid var(--card-border);color:#cbb8ff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;margin:3px 5px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <div class="logo">🎯</div>
+      <div><h1>Modo Foco</h1><small>seu treino mental diário</small></div>
+    </div>
+    <div class="badge" id="todayCheck">check-in de hoje</div>
+  </div>
+
+  <!-- ===== PAINEL ===== -->
+  <section class="view active" id="v-painel">
+    <div class="card streak">
+      <div class="ring" id="ring">
+        <div class="inner">
+          <div class="num" id="dias">0</div>
+          <div class="lbl">dias livre</div>
+          <div class="clock" id="clock">00h 00m 00s</div>
+        </div>
+      </div>
+      <div class="milestone" id="milestone">Próxima meta: <b>1 dia</b></div>
+      <div class="bar"><i id="barFill" style="width:0%"></i></div>
+    </div>
+
+    <button class="panic-btn" onclick="abrirPanico()">
+      ESTOU COM VONTADE AGORA
+      <span>respira comigo. a vontade sempre passa.</span>
+    </button>
+
+    <div class="stats">
+      <div class="stat"><div class="v" id="sBest">0</div><div class="k">recorde</div></div>
+      <div class="stat"><div class="v" id="sWon">0</div><div class="k">vontades vencidas</div></div>
+      <div class="stat"><div class="v" id="sReset">0</div><div class="k">recaídas</div></div>
+    </div>
+  </section>
+
+  <!-- ===== DIARIO ===== -->
+  <section class="view" id="v-diario">
+    <div class="card">
+      <h2 class="title">📓 Diário de gatilhos</h2>
+      <p class="sub">Anotar o que disparou a vontade tira ela do automático e te mostra o padrão. Sem padrão visível, ele te controla.</p>
+      <label>O que aconteceu / onde você estava</label>
+      <input id="gSit" placeholder="Ex: sozinho no quarto, à noite, sem nada pra fazer">
+      <label>Como você estava se sentindo</label>
+      <select id="gFeel">
+        <option value="">selecione</option>
+        <option>Tédio</option><option>Ansiedade</option><option>Estresse</option>
+        <option>Solidão</option><option>Cansaço</option><option>Tristeza</option>
+        <option>Animado demais / energia sobrando</option><option>Apenas hábito automático</option>
+      </select>
+      <label>O que você fez no lugar (opcional)</label>
+      <input id="gAct" placeholder="Ex: fui treinar, tomei água gelada, liguei pra alguém">
+      <button class="btn" style="margin-top:16px" onclick="addGatilho()">Salvar no diário</button>
+    </div>
+    <div id="listaGatilhos"></div>
+  </section>
+
+  <!-- ===== PORQUES ===== -->
+  <section class="view" id="v-porques">
+    <div class="card">
+      <h2 class="title">🔥 Meus porquês</h2>
+      <p class="sub">Escreve com suas palavras por que você quer isso. No momento fraco, é isso que o Modo Pânico vai te mostrar.</p>
+      <input id="novoPorque" placeholder="Ex: quero ter mais energia e foco no trabalho">
+      <button class="btn" style="margin-top:12px" onclick="addPorque()">Adicionar motivo</button>
+    </div>
+    <div class="why-list" id="listaPorques"></div>
+  </section>
+
+  <!-- ===== CHECK-IN ===== -->
+  <section class="view" id="v-checkin">
+    <div class="card">
+      <h2 class="title">✅ Check-in de hoje</h2>
+      <p class="sub">Trinta segundos por dia. Construir o hábito de aparecer todo dia é metade do jogo.</p>
+      <label>Como foi seu dia com o foco?</label>
+      <div class="row" id="moodRow">
+        <button class="btn ghost" data-m="forte" onclick="setMood('forte')">💪 Forte</button>
+        <button class="btn ghost" data-m="firme" onclick="setMood('firme')">🙂 Firme</button>
+        <button class="btn ghost" data-m="dificil" onclick="setMood('dificil')">😮‍💨 Difícil</button>
+      </div>
+      <label>Hoje eu...</label>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="btn ghost" id="tgTreino" onclick="toggleTag('treino')">🏋️ Treinei</button>
+        <button class="btn ghost" id="tgSono" onclick="toggleTag('sono')">😴 Dormi bem</button>
+      </div>
+      <label>Uma linha sobre o dia (opcional)</label>
+      <input id="ciNota" placeholder="Ex: dia puxado mas segurei firme">
+      <button class="btn verde" style="margin-top:16px" onclick="salvarCheckin()">Registrar dia</button>
+      <div class="hint" id="ciStreak"></div>
+    </div>
+    <div id="listaCheckins"></div>
+  </section>
+
+  <!-- ===== DADOS ===== -->
+  <section class="view" id="v-dados">
+    <div class="card">
+      <h2 class="title">🔒 Privacidade e dados</h2>
+      <p class="sub">Tudo aqui fica salvo só neste computador, dentro do navegador. Nada é enviado pra internet. Ninguém vê isso além de você.</p>
+      <button class="btn ghost" onclick="exportar()">⬇️ Salvar uma cópia (backup)</button>
+      <label style="margin-top:18px">Restaurar de um backup</label>
+      <input type="file" id="fileImp" accept="application/json" onchange="importar(event)">
+      <div class="hint">Use isso pra não perder seu progresso se limpar o navegador ou trocar de PC.</div>
+    </div>
+    <div class="card">
+      <h2 class="title" style="color:var(--aviso)">Zona de risco</h2>
+      <p class="sub">Recomeçar do zero apaga todo o histórico. Não dá pra desfazer.</p>
+      <button class="btn danger" onclick="zerarTudo()">Apagar tudo e recomeçar</button>
+    </div>
+    <p class="hint" style="text-align:center">Modo Foco · funciona offline · feito pra você por você</p>
+  </section>
+
+</div>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <button class="active" data-v="painel" onclick="go('painel')"><span class="ic">🏠</span>Painel</button>
+  <button data-v="diario" onclick="go('diario')"><span class="ic">📓</span>Diário</button>
+  <button data-v="porques" onclick="go('porques')"><span class="ic">🔥</span>Porquês</button>
+  <button data-v="checkin" onclick="go('checkin')"><span class="ic">✅</span>Check-in</button>
+  <button data-v="dados" onclick="go('dados')"><span class="ic">🔒</span>Dados</button>
+</nav>
+
+<!-- ===== MODO PANICO ===== -->
+<div id="panico">
+  <div class="panico-inner">
+    <div class="panico-h">Respira. Você está no controle.</div>
+    <div class="panico-sub">Uma vontade é uma onda. Ela sobe, chega no topo e desce sozinha. Você só precisa surfar ela.</div>
+
+    <div class="breathe">
+      <div class="orb"></div>
+      <div class="word" id="bWord">Inspira</div>
+    </div>
+
+    <div class="timer" id="pTimer">05:00</div>
+    <div class="pep" id="pPep">Fica comigo aqui. Só os próximos minutos importam.</div>
+
+    <div class="redirect">
+      <div class="item"><span class="e">🏋️</span><span class="t">Levanta agora e faz 25 flexões ou 40 agachamentos. Descarrega a energia no corpo.</span></div>
+      <div class="item"><span class="e">🚿</span><span class="t">Água fria no rosto ou um banho gelado de 30 segundos. Reseta o cérebro na hora.</span></div>
+      <div class="item"><span class="e">🚶</span><span class="t">Sai do ambiente. Vai pra outro cômodo, pra rua, qualquer lugar com gente ou luz.</span></div>
+    </div>
+
+    <div class="card" style="padding:18px;margin-bottom:0">
+      <div class="meta" style="color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Lembra por que você começou</div>
+      <div id="pPorques" style="font-size:14px;line-height:1.7;color:#d8d2ff"></div>
+    </div>
+
+    <div class="panico-foot">
+      <button class="btn verde" onclick="venciVontade()">A vontade passou. Eu venci. 💪</button>
+      <button class="btn danger" style="margin-top:10px" onclick="abrirRecaida()">Fui honesto: eu recaí</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="fecharPanico()">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL RECAIDA ===== -->
+<div class="modal-bg" id="modalRecaida">
+  <div class="modal">
+    <h3>Tudo bem. Recair não te define.</h3>
+    <p>Quem recai e volta é mais forte que quem nunca caiu. O que importa é o que você faz nos próximos 5 minutos: voltar pra linha. Sem culpa, sem se punir. Isso só alimenta o ciclo.</p>
+    <label>O que disparou dessa vez?</label>
+    <input id="recGatilho" placeholder="Ex: estava sozinho e entediado à noite">
+    <label>O que você faria diferente?</label>
+    <textarea id="recReflexao" placeholder="Ex: quando bater de novo, eu saio do quarto na hora"></textarea>
+    <div class="row">
+      <button class="btn ghost" onclick="fecharModal()">Cancelar</button>
+      <button class="btn" onclick="confirmarRecaida()">Recomeçar com a cabeça erguida</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= ESTADO ================= */
+const KEY='modoFoco_v1';
+const defaults={
+  inicio:Date.now(),
+  recorde:0,
+  vencidas:0,
+  recaidas:0,
+  gatilhos:[],
+  porques:[],
+  checkins:[],
+  ultimaMood:null
+};
+let S=carregar();
+function carregar(){
+  try{const r=JSON.parse(localStorage.getItem(KEY));return r?{...defaults,...r}:{...defaults};}
+  catch(e){return {...defaults};}
+}
+function salvar(){localStorage.setItem(KEY,JSON.stringify(S));}
+
+const MS_DIA=86400000;
+const metas=[1,3,7,14,21,30,60,90,180,365];
+
+/* ================= NAV ================= */
+function go(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.getElementById('v-'+v).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ================= PAINEL ================= */
+function tempoLivre(){return Date.now()-S.inicio;}
+function diasLivre(){return Math.floor(tempoLivre()/MS_DIA);}
+
+function renderPainel(){
+  const ms=tempoLivre();
+  const dias=Math.floor(ms/MS_DIA);
+  document.getElementById('dias').textContent=dias;
+
+  // proxima meta + progresso
+  let alvo=metas.find(m=>m>dias)||(dias+30);
+  let ant=metas.filter(m=>m<=dias).pop()||0;
+  let prog=Math.min(100,Math.round(((dias-ant)/(alvo-ant))*100));
+  document.getElementById('milestone').innerHTML='Próxima meta: <b>'+alvo+' dia'+(alvo>1?'s':'')+'</b> · faltam '+(alvo-dias);
+  document.getElementById('barFill').style.width=prog+'%';
+  document.getElementById('ring').style.setProperty('--prog',prog+'%');
+
+  // recorde "ao vivo" = max entre recorde salvo e sequencia atual
+  const recordeDias=Math.max(S.recorde,dias);
+  document.getElementById('sBest').textContent=recordeDias;
+  document.getElementById('sWon').textContent=S.vencidas;
+  document.getElementById('sReset').textContent=S.recaidas;
+}
+function tickClock(){
+  let ms=tempoLivre();
+  let h=Math.floor(ms/3600000)%24;
+  let m=Math.floor(ms/60000)%60;
+  let s=Math.floor(ms/1000)%60;
+  const p=n=>String(n).padStart(2,'0');
+  document.getElementById('clock').textContent=p(h)+'h '+p(m)+'m '+p(s)+'s';
+  document.getElementById('dias').textContent=diasLivre();
+}
+
+/* ================= DIARIO ================= */
+function addGatilho(){
+  const sit=document.getElementById('gSit').value.trim();
+  const feel=document.getElementById('gFeel').value;
+  const act=document.getElementById('gAct').value.trim();
+  if(!sit && !feel){toast('Escreve pelo menos o que aconteceu.');return;}
+  S.gatilhos.unshift({d:Date.now(),sit,feel,act});
+  salvar();
+  document.getElementById('gSit').value='';document.getElementById('gFeel').value='';document.getElementById('gAct').value='';
+  renderGatilhos();toast('Anotado. Conhecer o gatilho é vencer ele.');
+}
+function delGatilho(i){S.gatilhos.splice(i,1);salvar();renderGatilhos();}
+function renderGatilhos(){
+  const el=document.getElementById('listaGatilhos');
+  if(!S.gatilhos.length){el.innerHTML='<div class="empty">Nenhum gatilho anotado ainda.</div>';return;}
+  el.innerHTML=S.gatilhos.map((g,i)=>`
+    <div class="item">
+      <button class="x" onclick="delGatilho(${i})">×</button>
+      <div class="meta">${fmtData(g.d)}${g.feel?' · '+g.feel:''}</div>
+      <div>${esc(g.sit)||'<i style="color:var(--muted)">sem descrição</i>'}</div>
+      ${g.act?`<div style="color:var(--verde);font-size:13px;margin-top:6px">→ no lugar: ${esc(g.act)}</div>`:''}
+    </div>`).join('');
+}
+
+/* ================= PORQUES ================= */
+function addPorque(){
+  const v=document.getElementById('novoPorque').value.trim();
+  if(!v)return;
+  S.porques.unshift(v);salvar();
+  document.getElementById('novoPorque').value='';
+  renderPorques();
+}
+function delPorque(i){S.porques.splice(i,1);salvar();renderPorques();}
+function renderPorques(){
+  const el=document.getElementById('listaPorques');
+  if(!S.porques.length){el.innerHTML='<div class="empty">Escreve seus motivos acima. Eles vão te segurar no momento fraco.</div>';return;}
+  el.innerHTML=S.porques.map((p,i)=>`
+    <div class="item">
+      <button class="x" onclick="delPorque(${i})">×</button>
+      <div>${esc(p)}</div>
+    </div>`).join('');
+}
+
+/* ================= CHECK-IN ================= */
+let moodSel=null, tags={treino:false,sono:false};
+function setMood(m){
+  moodSel=m;
+  document.querySelectorAll('#moodRow .btn').forEach(b=>{
+    b.style.background = b.dataset.m===m ? 'linear-gradient(135deg,var(--roxo),var(--roxo2))' : '';
+    b.style.borderColor = b.dataset.m===m ? 'transparent' : '';
+  });
+}
+function toggleTag(t){
+  tags[t]=!tags[t];
+  const b=document.getElementById(t==='treino'?'tgTreino':'tgSono');
+  b.style.background = tags[t]?'linear-gradient(135deg,#10b981,#059669)':'';
+  b.style.borderColor = tags[t]?'transparent':'';
+}
+function hojeStr(){return new Date().toISOString().slice(0,10);}
+function salvarCheckin(){
+  if(!moodSel){toast('Marca como foi seu dia primeiro.');return;}
+  const nota=document.getElementById('ciNota').value.trim();
+  const ja=S.checkins.findIndex(c=>c.dia===hojeStr());
+  const reg={dia:hojeStr(),d:Date.now(),mood:moodSel,treino:tags.treino,sono:tags.sono,nota};
+  if(ja>=0)S.checkins[ja]=reg; else S.checkins.unshift(reg);
+  salvar();
+  document.getElementById('ciNota').value='';
+  renderCheckins();renderBadge();
+  toast(ja>=0?'Check-in de hoje atualizado.':'Mais um dia registrado. Continua.');
+}
+function delCheckin(i){S.checkins.splice(i,1);salvar();renderCheckins();renderBadge();}
+function sequenciaCheckins(){
+  // dias consecutivos terminando hoje ou ontem
+  const dias=new Set(S.checkins.map(c=>c.dia));
+  let n=0,d=new Date();
+  if(!dias.has(hojeStr())) d.setDate(d.getDate()-1); // permite contar se fez ontem
+  while(dias.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+function renderCheckins(){
+  const seq=sequenciaCheckins();
+  document.getElementById('ciStreak').textContent = seq>0 ? '🔥 '+seq+' dia'+(seq>1?'s':'')+' seguidos de check-in.' : '';
+  const el=document.getElementById('listaCheckins');
+  if(!S.checkins.length){el.innerHTML='';return;}
+  const emoji={forte:'💪',firme:'🙂',dificil:'😮‍💨'};
+  el.innerHTML=S.checkins.slice(0,30).map((c,i)=>`
+    <div class="item">
+      <button class="x" onclick="delCheckin(${i})">×</button>
+      <div class="meta">${fmtData(c.d)}</div>
+      <div>${emoji[c.mood]||''} ${c.mood} ${c.treino?'· 🏋️':''} ${c.sono?'· 😴':''}</div>
+      ${c.nota?`<div style="color:var(--muted);font-size:13px;margin-top:5px">${esc(c.nota)}</div>`:''}
+    </div>`).join('');
+}
+function renderBadge(){
+  const feito=S.checkins.some(c=>c.dia===hojeStr());
+  const b=document.getElementById('todayCheck');
+  b.textContent = feito?'✅ check-in feito':'⏳ falta o check-in';
+  b.style.color = feito?'#a7f3d0':'#cbb8ff';
+}
+
+/* ================= MODO PANICO ================= */
+let pInt=null, pSec=300, pepInt=null, breatheInt=null;
+const peps=[
+  'Essa vontade não é uma ordem. É só um pensamento de passagem.',
+  'Você já venceu isso antes. Faz de novo.',
+  'Daqui a 10 minutos você vai estar orgulhoso de não ter cedido.',
+  'O prazer dura segundos. O arrependimento dura o dia. Você sabe disso.',
+  'Mexe o corpo. A energia precisa de uma saída melhor.',
+  'Cada vez que você resiste, o impulso fica mais fraco. Você está reprogramando.',
+  'Respira fundo. Solta devagar. Só mais essa onda.'
+];
+function abrirPanico(){
+  document.getElementById('panico').classList.add('show');
+  document.body.style.overflow='hidden';
+  // porques
+  const pp=document.getElementById('pPorques');
+  pp.innerHTML = S.porques.length
+    ? S.porques.map(p=>'• '+esc(p)).join('<br>')
+    : '<i style="color:var(--muted)">Você ainda não escreveu seus porquês. Faz isso depois, na aba Porquês, pra ter munição aqui.</i>';
+  // timer 5 min
+  pSec=300; tickPanico();
+  clearInterval(pInt); pInt=setInterval(()=>{pSec--;tickPanico();if(pSec<=0){clearInterval(pInt);}},1000);
+  // peps rotativos
+  let pi=0; document.getElementById('pPep').textContent=peps[0];
+  clearInterval(pepInt); pepInt=setInterval(()=>{pi=(pi+1)%peps.length;const e=document.getElementById('pPep');e.style.opacity=0;setTimeout(()=>{e.textContent=peps[pi];e.style.opacity=1;},400);},6500);
+  // palavra de respiracao sincronizada com a animacao (11s)
+  const words=['Inspira','Segura','Solta'];
+  let wi=0; setWord(words[0]);
+  clearInterval(breatheInt);
+  breatheInt=setInterval(()=>{wi=(wi+1)%3;setWord(words[wi]);},[4500,1500,5000][0]); // simples
+  // melhor: ciclo fixo
+  clearInterval(breatheInt);
+  cicloRespira(words);
+}
+let respTimeout;
+function cicloRespira(words){
+  // inspira 4.5s, segura 1.5s, solta 5s = 11s
+  function passo(i){
+    setWord(words[i]);
+    const dur=[4500,1500,5000][i];
+    respTimeout=setTimeout(()=>passo((i+1)%3),dur);
+  }
+  passo(0);
+}
+function setWord(w){document.getElementById('bWord').textContent=w;}
+function tickPanico(){
+  const m=Math.floor(pSec/60),s=pSec%60;
+  document.getElementById('pTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function fecharPanico(){
+  document.getElementById('panico').classList.remove('show');
+  document.body.style.overflow='';
+  clearInterval(pInt);clearInterval(pepInt);clearTimeout(respTimeout);
+}
+function venciVontade(){
+  S.vencidas++;salvar();
+  fecharPanico();renderPainel();
+  toast('💪 Mais uma vencida. Você ficou mais forte agora.');
+}
+
+/* ================= RECAIDA ================= */
+function abrirRecaida(){document.getElementById('modalRecaida').classList.add('show');}
+function fecharModal(){document.getElementById('modalRecaida').classList.remove('show');}
+function confirmarRecaida(){
+  // fecha recorde antes de zerar
+  const diasAtuais=diasLivre();
+  if(diasAtuais>S.recorde)S.recorde=diasAtuais;
+  S.recaidas++;
+  const g=document.getElementById('recGatilho').value.trim();
+  const r=document.getElementById('recReflexao').value.trim();
+  if(g||r)S.gatilhos.unshift({d:Date.now(),sit:g,feel:'Recaída',act:r});
+  S.inicio=Date.now();
+  salvar();
+  document.getElementById('recGatilho').value='';document.getElementById('recReflexao').value='';
+  fecharModal();fecharPanico();
+  renderPainel();renderGatilhos();
+  go('painel');
+  toast('Recomeçou. Dia 1. Cabeça erguida. 🌅');
+}
+
+/* ================= DADOS ================= */
+function exportar(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='modo-foco-backup-'+hojeStr()+'.json';
+  a.click();
+  toast('Backup baixado.');
+}
+function importar(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{const d=JSON.parse(e.target.result);S={...defaults,...d};salvar();renderTudo();toast('Backup restaurado.');}
+    catch(err){toast('Arquivo inválido.');}
+  };
+  rd.readAsText(f);
+}
+function zerarTudo(){
+  if(!confirm('Tem certeza? Isso apaga TODO o seu histórico e não tem volta.'))return;
+  if(!confirm('De verdade. Não dá pra desfazer. Apagar tudo?'))return;
+  S={...defaults,inicio:Date.now()};salvar();renderTudo();go('painel');
+  toast('Tudo zerado. Começando de novo.');
+}
+
+/* ================= UTIL ================= */
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fmtData(t){
+  const d=new Date(t);
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+/* ================= INIT ================= */
+function renderTudo(){renderPainel();renderGatilhos();renderPorques();renderCheckins();renderBadge();}
+renderTudo();
+tickClock();
+setInterval(tickClock,1000);
+setInterval(renderPainel,60000);
+</script>
+</body>
+</html>
