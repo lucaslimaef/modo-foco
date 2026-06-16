@@ -93,6 +93,36 @@
   .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:10px}
   .bar > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--roxo),var(--ciano));transition:width .6s ease}
 
+  /* chip de fase no painel */
+  .fase-chip{margin-top:16px;cursor:pointer;background:rgba(124,58,237,.14);border:1px solid var(--card-border);border-radius:14px;padding:12px 14px;font-size:13px;font-weight:700;color:#d8d2ff;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}
+  .fase-chip span{color:var(--ciano);font-size:12px;font-weight:700;white-space:nowrap}
+
+  /* jornada */
+  .fase{position:relative;border-radius:18px;padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.035)}
+  .fase.done{opacity:.6}
+  .fase.atual{border-color:var(--roxo);background:rgba(124,58,237,.12);box-shadow:0 0 0 1px var(--roxo),0 14px 40px rgba(124,58,237,.28)}
+  .fase.futura{opacity:.8}
+  .fase .fh{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .fase .fe{font-size:26px;line-height:1}
+  .fase .fn{font-size:17px;font-weight:800}
+  .fase .fr{color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .fase .tag{display:inline-block;font-size:11px;font-weight:800;padding:5px 11px;border-radius:99px;letter-spacing:.4px}
+  .fase.done .tag{background:rgba(52,211,153,.15);color:#6ee7b7}
+  .fase.atual .tag{background:linear-gradient(135deg,var(--roxo),var(--azul));color:#fff;box-shadow:0 6px 18px rgba(124,58,237,.5)}
+  .fase.futura .tag{background:rgba(255,255,255,.07);color:var(--muted)}
+  .fase .blk{margin-top:12px}
+  .fase .blk .lab{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+  .fase .blk.fis .lab{color:var(--ciano)}
+  .fase .blk.men .lab{color:#c4b5fd}
+  .fase .blk.mis .lab{color:var(--aviso)}
+  .fase .blk p{font-size:14px;line-height:1.55}
+  details.science summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--aviso);list-style:none}
+  details.science summary::-webkit-details-marker{display:none}
+  details.science[open] summary{margin-bottom:12px}
+  details.science p{font-size:13px;line-height:1.65;color:var(--muted);margin-bottom:10px}
+  details.science b{color:var(--txt)}
+  details.science a{color:var(--ciano);word-break:break-word}
+
   /* botao panico */
   .panic-btn{
     width:100%;border:none;cursor:pointer;color:#fff;font-weight:800;font-size:17px;
@@ -147,7 +177,7 @@
     border-top:1px solid var(--card-border);
     padding:9px 4px calc(9px + env(safe-area-inset-bottom));
   }
-  nav button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 10px;border-radius:12px;flex:1;letter-spacing:.3px}
+  nav button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 3px;border-radius:12px;flex:1;letter-spacing:.2px}
   nav button .ic{font-size:20px}
   nav button.active{color:#fff}
   nav button.active .ic{filter:drop-shadow(0 0 10px rgba(124,58,237,.9))}
@@ -225,6 +255,7 @@
       </div>
       <div class="milestone" id="milestone">Próxima meta: <b>1 dia</b></div>
       <div class="bar"><i id="barFill" style="width:0%"></i></div>
+      <div class="fase-chip" id="faseChip" onclick="go('jornada')"></div>
     </div>
 
     <button class="panic-btn" onclick="abrirPanico()">
@@ -237,6 +268,22 @@
       <div class="stat"><div class="v" id="sWon">0</div><div class="k">vontades vencidas</div></div>
       <div class="stat"><div class="v" id="sReset">0</div><div class="k">recaídas</div></div>
     </div>
+  </section>
+
+  <!-- ===== JORNADA ===== -->
+  <section class="view" id="v-jornada">
+    <div class="card" style="padding:20px">
+      <h2 class="title">🗺️ Sua jornada</h2>
+      <p class="sub">Cada fase mostra o que costuma acontecer no corpo e na cabeça conforme os dias passam. Você desbloqueia conforme avança. Em destaque, a fase onde você está agora, pelo seu contador.</p>
+    </div>
+    <div id="listaFases"></div>
+    <details class="card science">
+      <summary>⚠️ A verdade sobre a ciência (vale ler)</summary>
+      <p><b>Sobre a testosterona:</b> o famoso "testosterona +145% no 7º dia" veio de um estudo de 2003 que foi <b>retratado (cancelado em 2021)</b>. Não existe prova boa de que parar de se masturbar aumente a sua testosterona de forma grande ou duradoura. O ganho não vem por aí, e tudo bem.</p>
+      <p><b>O que tem respaldo de verdade:</b> quando o uso é compulsivo, reduzir está ligado a mais motivação, mais confiança, menos ansiedade e mais prazer nas coisas simples, porque o sistema de recompensa do cérebro (a dopamina) recalibra. Vários relatos confirmam, mas estudos controlados ainda são poucos: boa parte do "no dia tal acontece isso" é relato de quem passou, não lei garantida. Cada corpo é um corpo.</p>
+      <p><b>O ganho mais certo de todos:</b> você quebra um ciclo automático, sobra tempo e energia, e cada dia treina o seu autocontrole. Isso acontece com você de qualquer jeito, sem depender de hormônio nenhum.</p>
+      <p>Fontes: <a href="https://link.springer.com/article/10.1631/jzus.2003.0236" target="_blank" rel="noopener">estudo retratado (Jiang, 2003)</a> · <a href="https://www.snopes.com/fact-check/increase-testosterone-45-percent/" target="_blank" rel="noopener">checagem Snopes</a> · <a href="https://www.nature.com/articles/s41598-023-45459-8" target="_blank" rel="noopener">uso problemático de pornografia (Nature, 2023)</a></p>
+    </details>
   </section>
 
   <!-- ===== DIARIO ===== -->
@@ -318,6 +365,7 @@
 <!-- ===== NAV ===== -->
 <nav>
   <button class="active" data-v="painel" onclick="go('painel')"><span class="ic">🏠</span>Painel</button>
+  <button data-v="jornada" onclick="go('jornada')"><span class="ic">🗺️</span>Jornada</button>
   <button data-v="diario" onclick="go('diario')"><span class="ic">📓</span>Diário</button>
   <button data-v="porques" onclick="go('porques')"><span class="ic">🔥</span>Porquês</button>
   <button data-v="checkin" onclick="go('checkin')"><span class="ic">✅</span>Check-in</button>
@@ -428,6 +476,8 @@ function renderPainel(){
   document.getElementById('sBest').textContent=recordeDias;
   document.getElementById('sWon').textContent=S.vencidas;
   document.getElementById('sReset').textContent=S.recaidas;
+  const f=fases[faseIdx(dias)];
+  document.getElementById('faseChip').innerHTML='Fase atual: '+f.emoji+' '+f.nome+' <span>ver jornada ›</span>';
 }
 function tickClock(){
   let ms=tempoLivre();
@@ -656,8 +706,57 @@ function toast(msg){
   clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3200);
 }
 
+/* ================= JORNADA ================= */
+const fases=[
+ {emoji:'🚦',nome:'A Largada',ini:0,fim:2,
+  fis:'O corpo ainda pede a dose de sempre. A vontade vem forte e vai e volta, puxada por gatilhos do dia a dia: tédio, cama, celular na mão.',
+  men:'Decisão fresca, motivação no pico. Cada "não" que você dá aqui já começa a enfraquecer o piloto automático.',
+  mis:'Sobreviver aos primeiros gatilhos. Quando bater, abre o Modo Pânico e mexe o corpo na hora.'},
+ {emoji:'🧹',nome:'A Faxina',ini:3,fim:7,
+  fis:'Inquietação, irritação, o sono pode mexer. É o cérebro reclamando da falta do estímulo de sempre. Não é fraqueza, é a química se reajustando.',
+  men:'A mente vai tentar negociar ("só uma vez não tem problema"). Por volta do 7º dia muita gente relata a cabeça começando a clarear.',
+  mis:'Não cair na negociação. Lembra: a vontade é uma onda, ela sobe e passa sozinha.'},
+ {emoji:'⚡',nome:'A Virada',ini:8,fim:14,
+  fis:'Muitos relatam mais energia e disposição ao longo do dia, sono melhor e menos "neblina mental".',
+  men:'Foco mais afiado e mais vontade de fazer as coisas. O tempo que ia pro hábito agora sobra pra treino, trabalho e gente.',
+  mis:'Canaliza essa energia num objetivo concreto. Joga ela no treino ou num projeto.'},
+ {emoji:'🌊',nome:'A Travessia',ini:15,fim:30,
+  fis:'Pode vir um "vale": a libido cai, parece que nada acontece, o ânimo oscila. É comum e temporário, é o sistema de recompensa recalibrando.',
+  men:'Aqui a confiança cresce de verdade: você já provou pra si mesmo que consegue. O autocontrole começa a virar identidade.',
+  mis:'Aguentar o vale sem dramatizar. É o trecho que separa quem desiste de quem muda.'},
+ {emoji:'🧭',nome:'O Novo Normal',ini:31,fim:60,
+  fis:'O hábito velho perde força. As coisas simples voltam a dar prazer (sinal da dopamina recalibrando): comida, música, treino, uma conversa.',
+  men:'Menos no automático, mais presente. A vontade aparece bem menos e fica bem mais fácil de domar.',
+  mis:'Travar os novos hábitos que ocuparam o espaço do antigo.'},
+ {emoji:'🏗️',nome:'A Consolidação',ini:61,fim:89,
+  fis:'Energia e libido se estabilizam num patamar saudável e mais sob o seu controle.',
+  men:'Sua autoimagem mudou: você é alguém que controla isso, não alguém que tenta. Os gatilhos antigos perdem o poder.',
+  mis:'Chegar nos 90. É o marco que a turma do "reboot" usa como referência de recalibração do cérebro.'},
+ {emoji:'👑',nome:'Maestria',ini:90,fim:null,
+  fis:'Esse é o seu novo normal, sem luta diária.',
+  men:'Não é mais uma batalha, é quem você se tornou. Daqui pra frente é manutenção e viver.',
+  mis:'Manter os hábitos, fazer backup do progresso e não esquecer de onde você saiu.'}
+];
+function faseIdx(d){for(let i=0;i<fases.length;i++){if(fases[i].fim===null||d<=fases[i].fim)return i;}return fases.length-1;}
+function renderJornada(){
+  const d=diasLivre(), cur=faseIdx(d);
+  document.getElementById('listaFases').innerHTML=fases.map((f,i)=>{
+    const st = i<cur?'done':(i===cur?'atual':'futura');
+    let tag = st==='done' ? '✓ concluída' : st==='atual' ? 'VOCÊ ESTÁ AQUI · dia '+d : '🔒 desbloqueia no dia '+f.ini;
+    const range='Dia '+f.ini+(f.fim!==null?' a '+f.fim:'+');
+    const extra=(st==='atual'&&f.fim!==null)?'<div class="fr" style="margin-top:10px;color:var(--ciano)">faltam '+(f.fim-d+1)+' dia(s) pra próxima fase</div>':'';
+    return '<div class="fase '+st+'">'
+      +'<div class="fh"><span class="fe">'+f.emoji+'</span><div><div class="fn">'+f.nome+'</div><div class="fr">'+range+'</div></div></div>'
+      +'<span class="tag">'+tag+'</span>'
+      +'<div class="blk fis"><div class="lab">No corpo</div><p>'+f.fis+'</p></div>'
+      +'<div class="blk men"><div class="lab">Na cabeça</div><p>'+f.men+'</p></div>'
+      +'<div class="blk mis"><div class="lab">Sua missão</div><p>'+f.mis+'</p></div>'
+      +extra+'</div>';
+  }).join('');
+}
+
 /* ================= INIT ================= */
-function renderTudo(){renderPainel();renderGatilhos();renderPorques();renderCheckins();renderBadge();}
+function renderTudo(){renderPainel();renderJornada();renderGatilhos();renderPorques();renderCheckins();renderBadge();}
 renderTudo();
 tickClock();
 setInterval(tickClock,1000);
